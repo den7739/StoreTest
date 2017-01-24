@@ -8,6 +8,9 @@ using SportsStore.Domain.Abstract;
 using SportsStore.Domain.Entities;
 using System.Collections.Generic;
 using SportsStore.Domain.Concrete;
+using System.Configuration;
+using SportsStore.WebUI.Infrastracture.Abstract;
+using SportsStore.WebUI.Infrastracture.Concrete;
 
 namespace SportsStore.WebUI.Infrastracture
 {
@@ -30,6 +33,14 @@ namespace SportsStore.WebUI.Infrastracture
         private void AddBindings()
         {
             ninjectKernel.Bind<IProductRepository>().To<EFProductRepository>();
+            EmailSettings emailSettings = new EmailSettings
+            {
+                WriteAsFile = bool.Parse(ConfigurationManager
+                    .AppSettings["Email.WriteAsFile"] ?? "false")
+            };
+            ninjectKernel.Bind<IOrderProcessor>().To<EmailOrderProcessor>()
+                .WithConstructorArgument("settings", emailSettings);
+            ninjectKernel.Bind<IAuthProvider>().To<FormsAuthProvider>();
         }
     }
 }
